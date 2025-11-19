@@ -20,19 +20,10 @@ def build_vector_store():
 
     vectordb = Chroma.from_documents(
         documents=chunks,
-        embedding=embeddings,
-        persist_directory="chromadb_store"
+        embedding=embeddings
     )
     
     return vectordb
-
-def get_vector_store():
-    if os.path.exists("chromadb_store"):
-        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-        vectordb = Chroma(persist_directory="chromadb_store", embedding_function=embeddings)
-        return vectordb
-    else:       
-        return build_vector_store()
     
 def get_llm():
     api = os.getenv("COHERE_API_KEY")
@@ -40,7 +31,7 @@ def get_llm():
     return llm
 
 def main():
-    vectordb = get_vector_store()
+    vectordb = build_vector_store()
     llm = get_llm()
     retriever = vectordb.as_retriever()
     qa_chain = RetrievalQA.from_chain_type(
@@ -53,7 +44,7 @@ def main():
         if query == "exit":
             break
         else:
-            result = qa_chain.invoke(query)
+            result = qa_chain.invoke({"query": query})
             print(result["result"])
 
 if __name__ == "__main__":
