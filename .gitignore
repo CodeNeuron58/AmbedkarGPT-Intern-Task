@@ -209,3 +209,6 @@ __marimo__/
 
 my_env
 my_vectordb
+db_small
+db_medium
+db_large
